@@ -1551,7 +1551,7 @@ FUNCTION get_movement
            {
             for (int n=1;n<=nregions(k);n++)
              {
-              if(T_temp_sum>1) //ensure T doesn't exceed bounds
+              if(T_temp_sum!=1) //ensure T doesn't exceed bounds
                 {
                  T(j,r,y,a,k,n)=T(j,r,y,a,k,n)/T_temp_sum;
                 }
@@ -1611,7 +1611,7 @@ FUNCTION get_movement
            {
             for (int n=1;n<=nregions(k);n++)
              {
-              if(T_temp_sum>1) //ensure T doesn't exceed bounds
+              if(T_temp_sum!=1) //ensure T doesn't exceed bounds
                 {
                  T(j,r,y,a,k,n)=T(j,r,y,a,k,n)/T_temp_sum;
                 }
