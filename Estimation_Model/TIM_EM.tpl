@@ -4546,42 +4546,43 @@ FUNCTION evaluate_the_objective_function
   {
   if(fit_tag_age_switch==0) //fit cohorts by age and region
    {
-  for (int i=1;i<=npops;i++)
-  {
-   for (int n=1;n<=nregions(i);n++)
-    {
-    for(int x=1; x<=nyrs_release; x++)
+    for (int i=1;i<=npops;i++)
      {
-           xx=yrs_releases(x); //actual release years
-      for (int a=1;a<=nages;a++) //release age
-        {
-        if(ntags(i,n,x,a)==0)
+      for (int n=1;n<=nregions(i);n++)
+       {
+        for(int x=1; x<=nyrs_release; x++)
          {
-          OBS_tag_prop_N(i,n,x,a)==0; //make tag likelihood==0 if there are no releases in a given cohort (i.e., mainly if no releases at young ages due to selectivity==0)
-         }
-         for(int s=1;s<=(max_life_tags*sum(nregions)+1);s++) 
+          xx=yrs_releases(x); //actual release years
+          for (int a=1;a<=nages;a++) //release age
            {
-           if(diagnostics_switch==1) //use true values for diagnostic runs
-           {
-            OBS_tag_prop_final(i,n,x,a,s)=tag_prop_final_TRUE(i,n,x,a,s);
-            }
+            if(ntags(i,n,x,a)==0)
+             {
+              OBS_tag_prop_N(i,n,x,a)==0; //make tag likelihood==0 if there are no releases in a given cohort (i.e., mainly if no releases at young ages due to selectivity==0)
+             }
+            if(diagnostics_switch==1) //use true values for diagnostic runs
+             {
+              OBS_tag_prop_final(i,n,x,a,s)=tag_prop_final_TRUE(i,n,x,a,s);
+             }
             if(max_life_tags<=(nyrs-xx+1)) //complete cohorts so don't need to adjust to avoid recap entries with no possible recaptures
              {
               tag_like -= OBS_tag_prop_N(i,n,x,a) * ((OBS_tag_prop_final(i,n,x,a)+0.001)*log(tag_prop_final(i,n,x,a)+0.001)-(OBS_tag_prop_final(i,n,x,a)+0.001)*log(OBS_tag_prop_final(i,n,x,a)+0.001)); //doing row multiplication because dropping final 's' subscript
              }
-           if(max_life_tags>(nyrs-xx+1)) //need special calcs for incomplete cohorts (ie model ends before end max_life_tags reached)
+            if(max_life_tags>(nyrs-xx+1)) //need special calcs for incomplete cohorts (ie model ends before end max_life_tags reached)
              {
-              if(s<((nyrs-xx+1)*sum(nregions)+1)) //years with recaps get added to likelihood, index<first yr where yr_release+age_tag>nyrs
-                {
-                tag_like_temp +=(OBS_tag_prop_final(i,n,x,a,s)+0.001)*log(tag_prop_final(i,n,x,a,s)+0.001)-(OBS_tag_prop_final(i,n,x,a,s)+0.001)*log(OBS_tag_prop_final(i,n,x,a,s)+0.001);
-               }
-              if(s==((nyrs-xx+1)*sum(nregions)+1)) //skip to not recaptured state once you get to first year where age_tag+yr_release>nyrs (i.e. skip years where no possible recaps), 
+              tag_like_temp.initialize();
+              for(int s=1;s<=(max_life_tags*sum(nregions)+1);s++) 
                {
-                 tag_like_temp += (OBS_tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001)*log(tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001)-(OBS_tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001)*log(OBS_tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001);
-                }
-               tag_like -= OBS_tag_prop_N(i,n,x,a)*tag_like_temp; //only multiply eff_N by total likelihood for a cohort to avoid over emphasizing data
+                if(s<((nyrs-xx+1)*sum(nregions)+1)) //years with recaps get added to likelihood, index<first yr where yr_release+age_tag>nyrs
+                 {
+                  tag_like_temp +=(OBS_tag_prop_final(i,n,x,a,s)+0.001)*log(tag_prop_final(i,n,x,a,s)+0.001)-(OBS_tag_prop_final(i,n,x,a,s)+0.001)*log(OBS_tag_prop_final(i,n,x,a,s)+0.001);
+                 }
+                if(s==((nyrs-xx+1)*sum(nregions)+1)) //skip to not recaptured state once you get to first year where age_tag+yr_release>nyrs (i.e. skip years where no possible recaps), 
+                 {
+                  tag_like_temp += (OBS_tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001)*log(tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001)-(OBS_tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001)*log(OBS_tag_prop_final(i,n,x,a,(max_life_tags*sum(nregions)+1))+0.001);
+                 }
+               }
+              tag_like -= OBS_tag_prop_N(i,n,x,a)*tag_like_temp; //only multiply eff_N by total likelihood for a cohort to avoid over emphasizing data
              }
-            }
            }
           }
          }
@@ -4590,46 +4591,47 @@ FUNCTION evaluate_the_objective_function
       
   if(fit_tag_age_switch==1) //only fit cohorts by region not age
    {
-   for (int i=1;i<=npops;i++)
+    for (int i=1;i<=npops;i++)
     {
-   for (int n=1;n<=nregions(i);n++)
-    {
-    for(int x=1; x<=nyrs_release; x++)
-     {
-           xx=yrs_releases(x); //actual release years
-           if(ntags_no_age(i,n,x)==0)
-            {
-             OBS_tag_prop_N(i,n,x,1)==0; //make tag likelihood==0 if there are no releases in a given cohort (i.e., mainly if no releases at young ages due to selectivity==0)
-            }
-         for(int s=1;s<=(max_life_tags*sum(nregions)+1);s++) 
+     for (int n=1;n<=nregions(i);n++)
+      {
+       for(int x=1; x<=nyrs_release; x++)
+        {
+         xx=yrs_releases(x); //actual release years
+          if(ntags_no_age(i,n,x)==0)
            {
-           if(diagnostics_switch==1) //use true values for diagnostic runs
+            OBS_tag_prop_N(i,n,x,1)==0; //make tag likelihood==0 if there are no releases in a given cohort (i.e., mainly if no releases at young ages due to selectivity==0)
+           }
+          if(diagnostics_switch==1) //use true values for diagnostic runs
            {
             OBS_tag_prop_final_no_age(i,n,x,s)=tag_prop_final_TRUE_no_age(i,n,x,s);
-            }
-            if(max_life_tags<=(nyrs-xx+1)) //complete cohorts so don't need to adjust to avoid recap entries with no possible recaptures
-             {
-              tag_like -= OBS_tag_prop_N(i,n,x,1) * ((OBS_tag_prop_final_no_age(i,n,x)+0.001)*log(tag_prop_final_no_age(i,n,x)+0.001)-(OBS_tag_prop_final_no_age(i,n,x)+0.001)*log(OBS_tag_prop_final_no_age(i,n,x)+0.001)); //doing row multiplication because dropping final 's' subscript
-             }
-           if(max_life_tags>(nyrs-xx+1)) //need special calcs for incomplete cohorts (ie model ends before end max_life_tags reached)
+           }
+          if(max_life_tags<=(nyrs-xx+1)) //complete cohorts so don't need to adjust to avoid recap entries with no possible recaptures
+           {
+            tag_like -= OBS_tag_prop_N(i,n,x,1) * ((OBS_tag_prop_final_no_age(i,n,x)+0.001)*log(tag_prop_final_no_age(i,n,x)+0.001)-(OBS_tag_prop_final_no_age(i,n,x)+0.001)*log(OBS_tag_prop_final_no_age(i,n,x)+0.001)); //doing row multiplication because dropping final 's' subscript
+           }
+          if(max_life_tags>(nyrs-xx+1)) //need special calcs for incomplete cohorts (ie model ends before end max_life_tags reached)
+           {
+            tag_like_temp.initialize();
+            for(int s=1;s<=(max_life_tags*sum(nregions)+1);s++) 
              {
               if(s<((nyrs-xx+1)*sum(nregions)+1)) //years with recaps get added to likelihood, index<first yr where yr_release+age_tag>nyrs
-                {
+               {
                 tag_like_temp +=(OBS_tag_prop_final_no_age(i,n,x,s)+0.001)*log(tag_prop_final_no_age(i,n,x,s)+0.001)-(OBS_tag_prop_final_no_age(i,n,x,s)+0.001)*log(OBS_tag_prop_final_no_age(i,n,x,s)+0.001);
                }
               if(s==((nyrs-xx+1)*sum(nregions)+1)) //skip to not recaptured state once you get to first year where age_tag+yr_release>nyrs (i.e. skip years where no possible recaps), 
                {
-                 tag_like_temp += (OBS_tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001)*log(tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001)-(OBS_tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001)*log(OBS_tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001);
-                }
-               tag_like -= OBS_tag_prop_N(i,n,x,1)*tag_like_temp; //only multiply eff_N by total likelihood for a cohort to avoid over emphasizing data
+                tag_like_temp += (OBS_tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001)*log(tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001)-(OBS_tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001)*log(OBS_tag_prop_final_no_age(i,n,x,(max_life_tags*sum(nregions)+1))+0.001);
+               }
              }
-            }
+            tag_like -= OBS_tag_prop_N(i,n,x,1)*tag_like_temp; //only multiply eff_N by total likelihood for a cohort to avoid over emphasizing data
            }
-          }
          }
         }
+       }
+      }
 
-       } //end do_tag_mult loop
+    } //end do_tag_mult loop
 
 // if(do_tag_mult==0)
 //  {
