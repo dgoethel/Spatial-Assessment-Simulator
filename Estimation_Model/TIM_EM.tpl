@@ -1197,7 +1197,7 @@ FUNCTION get_movement
             {
              for (int x=1;x<=T_est_freq;x++)
               {            
-               T(j,r,x+(y-1)*T_est_freq,a,k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));           
+               T(j,r,min(x+(y-1)*T_est_freq,nyrs),a,k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));           
             }
            } 
           }
@@ -1214,6 +1214,7 @@ FUNCTION get_movement
        {
       G=0;
       G_temp=0;
+
       for (int j=1;j<=sum(nregions);j++)
        {
         for (int i=1;i<=sum(nregions);i++) 
@@ -1233,7 +1234,7 @@ FUNCTION get_movement
         }
        }    
         G_temp=rowsum(G);
-     
+
    for (int j=1;j<=npops;j++)
     {
      for (int r=1;r<=nregions(j);r++)
@@ -1246,7 +1247,7 @@ FUNCTION get_movement
              {
               for(int z=1;z<=T_est_age_freq;z++)
                {
-                 T(j,r,x+(y-1)*T_est_freq,z+(a-1)*T_est_age_freq,k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));
+                 T(j,r,min(x+(y-1)*T_est_freq,nyrs),min(z+(a-1)*T_est_age_freq,nages),k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));
                }
               }
              }
@@ -1255,6 +1256,7 @@ FUNCTION get_movement
           }
          }
         }
+
   for (int j=1;j<=npops;j++) //adjust T matrix so that all juvenile ages have the same T
    {
     for (int r=1;r<=nregions(j);r++)
@@ -1282,7 +1284,6 @@ FUNCTION get_movement
     }
    }
    }
-
 
     if(phase_T_YR_AGE>0) //EST T by year and age
     {
@@ -1417,7 +1418,7 @@ FUNCTION get_movement
              {
               for(int z=1;z<=T_est_age_freq;z++)
                {
-                 T(j,r,x+(y-1)*T_est_freq,z+(a)*T_est_age_freq,k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));
+                 T(j,r,min(x+(y-1)*T_est_freq,nyrs),min(z+(a)*T_est_age_freq,nages),k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));
                }
               }
              }
