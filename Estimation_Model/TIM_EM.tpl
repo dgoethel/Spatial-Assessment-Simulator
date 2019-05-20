@@ -944,7 +944,10 @@ INITIALIZATION_SECTION  //set initial values
  ln_T_YR_ALT_FREQ T_start;
  ln_T_YR_AGE_ALT_FREQ T_start;
  ln_T_CNST_AGE T_start;
- ln_T_YR_AGE T_start;  
+ ln_T_YR_AGE T_start;
+ ln_T_YR_AGE_ALT_FREQ_no_AG1 T_start;
+ ln_T_CNST_AGE_no_AG1 T_start;
+ ln_T_YR_AGE_no_AG1 T_start;  
  ln_T_CNST T_start;
 PROCEDURE_SECTION
  
@@ -1285,6 +1288,94 @@ FUNCTION get_movement
    }
    }
 
+    if(phase_T_YR_AGE_ALT_FREQ_no_AG1>0) //EST T by for every T_est_freq years and T_est_age_freq ages, with all ages <age_juv getting the first age movement parameter
+    {
+      for(int y=1;y<=floor(((nyrs-1)/T_est_freq)+1);y++)
+       {
+      for(int a=1;a<=floor(((nages-2)/T_est_age_freq)+1);a++)
+       {
+      G=0;
+      G_temp=0;
+      for (int j=1;j<=sum(nregions);j++)
+       {
+        for (int i=1;i<=sum(nregions);i++) 
+         {
+            if(j==i)
+            {
+            G(j,i)=1;
+            }
+            if(i>j)
+            {
+            G(j,i)=mfexp(ln_T_YR_AGE_ALT_FREQ_no_AG1(j+sum(nregions)*(a-1)+sum(nregions)*floor(((nages-2)/T_est_age_freq)+1)*(y-1),i-1));
+            }
+            if(j!=i && i<j)
+            {
+            G(j,i)=mfexp(ln_T_YR_AGE_ALT_FREQ_no_AG1(j+sum(nregions)*(a-1)+sum(nregions)*floor(((nages-2)/T_est_age_freq)+1)*(y-1),i));
+            }
+        }
+       }    
+        G_temp=rowsum(G);
+     
+   for (int j=1;j<=npops;j++)
+    {
+     for (int r=1;r<=nregions(j);r++)
+      {
+         for (int k=1;k<=npops;k++)
+          {
+           for (int n=1;n<=nregions(k);n++)
+            {
+             for(int x=1;x<=T_est_freq;x++)
+             {
+              for(int z=1;z<=T_est_age_freq;z++)
+               {
+                 T(j,r,min(x+(y-1)*T_est_freq,nyrs),min(z+1+(a-1)*T_est_age_freq,nages),k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+  for (int j=1;j<=npops;j++) //adjust T matrix so that all juvenile ages have the same T
+   {
+    for (int r=1;r<=nregions(j);r++)
+     {
+     for(int y=1;y<=nyrs;y++)
+       {
+        for (int a=1;a<=nages;a++)
+         {
+          for (int k=1;k<=npops;k++)
+           {
+            for (int n=1;n<=nregions(k);n++)
+             {
+                if(a<=juv_age && a!=1)
+                 {
+                  T(j,r,y,a,k,n)=T(j,r,y,2,k,n); //fill all juvenile ages with movement for age-2
+                 }
+                if(a>juv_age && a<=T_est_age_freq)
+                 {
+                  T(j,r,y,a,k,n)=T(j,r,y,T_est_age_freq+1,k,n); //fill all ages>juv_age but <freq of est ages (i.e., would otherwise get same T as juv age) with the movement of the next age class
+                 }
+                if(a==1)
+                 {
+                  if(j==k && r==n)
+                   {
+                    T(j,r,y,a,k,n)=1.0;
+                   }
+                   if(j!=k || r!=n)
+                   {
+                    T(j,r,y,a,k,n)=0.0;
+                   }
+                 }
+        }
+       } 
+      }
+     }
+    }
+   }
+   }
+
     if(phase_T_YR_AGE>0) //EST T by year and age
     {
       for(int y=1;y<=nyrs;y++)
@@ -1376,95 +1467,6 @@ FUNCTION get_movement
         }
        }
       }
-
-
-    if(phase_T_YR_AGE_ALT_FREQ_no_AG1>0) //EST T by for every T_est_freq years and T_est_age_freq ages, with all ages <age_juv getting the first age movement parameter
-    {
-      for(int y=1;y<=floor(((nyrs-1)/T_est_freq)+1);y++)
-       {
-      for(int a=1;a<=floor(((nages-2)/T_est_age_freq)+1);a++)
-       {
-      G=0;
-      G_temp=0;
-      for (int j=1;j<=sum(nregions);j++)
-       {
-        for (int i=1;i<=sum(nregions);i++) 
-         {
-            if(j==i)
-            {
-            G(j,i)=1;
-            }
-            if(i>j)
-            {
-            G(j,i)=mfexp(ln_T_YR_AGE_ALT_FREQ_no_AG1(j+sum(nregions)*(a-1)+sum(nregions)*floor(((nages-2)/T_est_age_freq)+1)*(y-1),i-1));
-            }
-            if(j!=i && i<j)
-            {
-            G(j,i)=mfexp(ln_T_YR_AGE_ALT_FREQ_no_AG1(j+sum(nregions)*(a-1)+sum(nregions)*floor(((nages-2)/T_est_age_freq)+1)*(y-1),i));
-            }
-        }
-       }    
-        G_temp=rowsum(G);
-     
-   for (int j=1;j<=npops;j++)
-    {
-     for (int r=1;r<=nregions(j);r++)
-      {
-         for (int k=1;k<=npops;k++)
-          {
-           for (int n=1;n<=nregions(k);n++)
-            {
-             for(int x=1;x<=T_est_freq;x++)
-             {
-              for(int z=1;z<=T_est_age_freq;z++)
-               {
-                 T(j,r,min(x+(y-1)*T_est_freq,nyrs),min(z+(a)*T_est_age_freq,nages),k,n)=G(r+nreg_temp(j),n+nreg_temp(k))/G_temp(r+nreg_temp(j));
-               }
-              }
-             }
-            }
-           }
-          }
-         }
-        }
-  for (int j=1;j<=npops;j++) //adjust T matrix so that all juvenile ages have the same T
-   {
-    for (int r=1;r<=nregions(j);r++)
-     {
-     for(int y=1;y<=nyrs;y++)
-       {
-        for (int a=1;a<=nages;a++)
-         {
-          for (int k=1;k<=npops;k++)
-           {
-            for (int n=1;n<=nregions(k);n++)
-             {
-                if(a<=juv_age && a!=1)
-                 {
-                  T(j,r,y,a,k,n)=T(j,r,y,2,k,n); //fill all juvenile ages with movement for age-2
-                 }
-                if(a>juv_age && a<=T_est_age_freq)
-                 {
-                  T(j,r,y,a,k,n)=T(j,r,y,T_est_age_freq+1,k,n); //fill all ages>juv_age but <freq of est ages (i.e., would otherwise get same T as juv age) with the movement of the next age class
-                 }
-                if(a==1)
-                 {
-                  if(j==k && r==n)
-                   {
-                    T(j,r,y,a,k,n)=1.0;
-                   }
-                   if(j!=k || r!=n)
-                   {
-                    T(j,r,y,a,k,n)=0.0;
-                   }
-                 }
-        }
-       } 
-      }
-     }
-    }
-   }
-   }
 
 
     if(phase_T_YR_AGE_no_AG1>0) //EST T by year and age
