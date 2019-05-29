@@ -4564,7 +4564,7 @@ FUNCTION evaluate_the_objective_function
              }
             if(diagnostics_switch==1) //use true values for diagnostic runs
              {
-              OBS_tag_prop_final(i,n,x,a,s)=tag_prop_final_TRUE(i,n,x,a,s);
+              OBS_tag_prop_final(i,n,x,a)=tag_prop_final_TRUE(i,n,x,a);
              }
             if(max_life_tags<=(nyrs-xx+1)) //complete cohorts so don't need to adjust to avoid recap entries with no possible recaptures
              {
@@ -4607,7 +4607,7 @@ FUNCTION evaluate_the_objective_function
            }
           if(diagnostics_switch==1) //use true values for diagnostic runs
            {
-            OBS_tag_prop_final_no_age(i,n,x,s)=tag_prop_final_TRUE_no_age(i,n,x,s);
+            OBS_tag_prop_final_no_age(i,n,x)=tag_prop_final_TRUE_no_age(i,n,x);
            }
           if(max_life_tags<=(nyrs-xx+1)) //complete cohorts so don't need to adjust to avoid recap entries with no possible recaptures
            {
