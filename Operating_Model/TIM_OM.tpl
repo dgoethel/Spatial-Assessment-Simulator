@@ -1589,7 +1589,10 @@ FUNCTION get_movement
              {
               if((a>1 && move_switch!=0) || (a==1 && larval_move_switch>0) || (a==1 && larval_move_switch==(-1) &&  move_switch!=0)) 
               {
-               T(j,r,y,a,k,n)*=mfexp(T_RN(j,r,y,a)*sigma_T(j)-0.5*square(sigma_T(j)));
+               if(j==k && r==n) //add random variation onto residency term then rescale movements below so still some to 1
+                {
+                 T(j,r,y,a,k,n)*=mfexp(T_RN(j,r,y,a)*sigma_T(j)-0.5*square(sigma_T(j)));
+                }
               }
                if(move_switch==0)
                 {
