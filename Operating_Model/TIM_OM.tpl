@@ -1287,25 +1287,101 @@ FUNCTION get_random_numbers
        {       
         for (int y=1;y<=max_yrs;y++)
          {
-          for (int z=1;z<=max_flts;z++)
-           {
             for (int x=1;x<=max_surv_flts;x++)
              {
-            for(int s=1; s<=max_tag_yrs; s++)
-               {
-             for (int a=1;a<=max_ages;a++)
-                {
-                 yield_RN_temp_overlap(p,j,r,y,z)=randn(myrand_yield);
-                 survey_RN_temp_overlap(p,j,r,y,x)=randn(myrand_survey);
-                 yield_RN_temp(j,r,y,z)=randn(myrand_yield);
+               survey_RN_temp_overlap(p,j,r,y,x)=randn(myrand_survey);
+             }
+           }
+          }
+         }
+        }
+
+  for (int p=1;p<=max_pops;p++)
+   {
+    for (int j=1;j<=max_pops;j++)
+     {  
+      for (int r=1;r<=max_regs;r++)   
+       {       
+        for (int y=1;y<=max_yrs;y++)
+         {
+          for (int z=1;z<=max_flts;z++)
+           {
+               yield_RN_temp_overlap(p,j,r,y,z)=randn(myrand_yield);
+             }
+            }
+           }
+          }
+         }
+
+    for (int j=1;j<=max_pops;j++)
+     {  
+      for (int r=1;r<=max_regs;r++)   
+       {       
+        for (int y=1;y<=max_yrs;y++)
+         {
+            for (int x=1;x<=max_surv_flts;x++)
+             {
                  survey_RN_temp(j,r,y,x)=randn(myrand_survey);
+             }
+           }
+          }
+         }
+
+    for (int j=1;j<=max_pops;j++)
+     {  
+      for (int r=1;r<=max_regs;r++)   
+       {       
+        for (int y=1;y<=max_yrs;y++)
+         {
+          for (int z=1;z<=max_flts;z++)
+           {
+                 yield_RN_temp(j,r,y,z)=randn(myrand_yield);
                  F_RN_temp(j,r,y,z)=randn(myrand_F);
-                 rec_devs_RN_temp(j,y)=randn(myrand_rec_devs);
+           }
+          }
+         }
+        }
+
+    for (int j=1;j<=max_pops;j++)
+     {  
+      for (int r=1;r<=max_regs;r++)   
+       {  
+        for(int s=1; s<=max_tag_yrs; s++)
+          {
+             ntags_RN_temp(j,r,s)=randu(myrand_ntags);
+             prob_tag_RN_temp(j,r,s)=randu(myrand_prob_tag);
+          }
+         }
+        }
+
+        for(int s=1; s<=max_tag_yrs; s++)
+          {
+             prob_tag_year_RN_temp(s)=randu(myrand_prob_tag_year);
+          }
+
+
+    for (int j=1;j<=max_pops;j++)
+     {  
+      for (int r=1;r<=max_regs;r++)   
+       {       
+        for (int y=1;y<=max_yrs;y++)
+         {
+          for (int a=1;a<=max_ages;a++)
+           {
+             T_RN_temp(j,r,y,a)=randn(myrand_T);
+           }
+          }
+         }
+        }
+
+    for (int j=1;j<=max_pops;j++)
+     {  
+      for (int r=1;r<=max_regs;r++)   
+       {       
+        for (int y=1;y<=max_yrs;y++)
+         {
                  rec_index_RN_temp(j,r,y)=randn(myrand_rec_index);
-                 T_RN_temp(j,r,y,a)=randn(myrand_T);
-                 ntags_RN_temp(j,r,s)=randu(myrand_ntags);
-                 prob_tag_RN_temp(j,r,s)=randu(myrand_prob_tag);
-                 prob_tag_year_RN_temp(s)=randu(myrand_prob_tag_year);
+
                if(apportionment_type==3)//completely random apportionment
                 {
                  Rec_apport_RN_temp(j,y,r)=randu(myrand_rec_apport);//generate a positive random number bw 0-1
@@ -1314,15 +1390,17 @@ FUNCTION get_random_numbers
                 {
                  Rec_apport_RN_temp(j,y,r)=randn(myrand_rec_apport);//generate a positive random number bw 0-1
                }
-         }
-        }
        }
       }
      }
-    }
-   }
-  }
-   
+    for (int j=1;j<=max_pops;j++)
+     {
+       for (int y=1;y<=max_yrs;y++)
+         {
+             rec_devs_RN_temp(j,y)=randn(myrand_rec_devs);
+         }
+      }
+
 
  //once RNGs are created they are now input into the actual RN arrays used in the calculations based on the true
  //index lengths (
@@ -1338,23 +1416,68 @@ FUNCTION get_random_numbers
          {
           for (int z=1;z<=nfleets(j);z++)
            {
+                 yield_RN_overlap(p,j,r,y,z)=yield_RN_temp_overlap(p,j,r,y,z);
+            }
+           }
+          }
+         }
+        }
+
+
+  for (int p=1;p<=npops;p++)
+   {
+    for (int j=1;j<=npops;j++)
+     {  
+      for (int r=1;r<=nregions(j);r++)   
+       {       
+        for (int y=1;y<=nyrs;y++)
+         {
             for (int x=1;x<=nfleets_survey(j);x++)
              {
-              for(int s=1; s<=nyrs_release; s++)
-               {
-                for (int a=1;a<=nages;a++)
-                {
-                 yield_RN(j,r,y,z)=yield_RN_temp(j,r,y,z);
-                 yield_RN_overlap(p,j,r,y,z)=yield_RN_temp_overlap(p,j,r,y,z);
-                 survey_RN(j,r,y,x)=survey_RN_temp(j,r,y,x);
                  survey_RN_overlap(p,j,r,y,x)=survey_RN_temp_overlap(p,j,r,y,x);
-                 F_RN(j,r,y,z)=F_RN_temp(j,r,y,z);
-                 rec_devs_RN(j,y)=rec_devs_RN_temp(j,y);
-                 rec_index_RN(j,r,y)=rec_index_RN_temp(j,r,y);
-                 T_RN(j,r,y,a)=T_RN_temp(j,r,y,a);
-                 ntags_RN(j,r,s)=ntags_RN_temp(j,r,s);
-                 prob_tag_RN(j,r,s)=prob_tag_RN_temp(j,r,s);
-                 prob_tag_year_RN(s)=prob_tag_year_RN_temp(s);
+             }
+           }
+          }
+         }
+        }
+
+
+    for (int j=1;j<=npops;j++)
+     {  
+      for (int r=1;r<=nregions(j);r++)   
+       {       
+        for (int y=1;y<=nyrs;y++)
+         {
+          for (int x=1;x<=nfleets_survey(j);x++)
+             {
+                 survey_RN(j,r,y,x)=survey_RN_temp(j,r,y,x);
+             }
+           }
+          }
+         }
+
+    for (int j=1;j<=npops;j++)
+     {  
+      for (int r=1;r<=nregions(j);r++)   
+       {       
+        for (int y=1;y<=nyrs;y++)
+         {
+          for (int z=1;z<=nfleets(j);z++)
+           {
+            yield_RN(j,r,y,z)=yield_RN_temp(j,r,y,z);
+            F_RN(j,r,y,z)=F_RN_temp(j,r,y,z);
+           }
+          }
+         }
+        }
+
+    for (int j=1;j<=npops;j++)
+     {  
+      for (int r=1;r<=nregions(j);r++)   
+       {       
+        for (int y=1;y<=nyrs;y++)
+         {
+            rec_index_RN(j,r,y)=rec_index_RN_temp(j,r,y);
              if(y>1) //rec apport is of length nyrs-1, so need to make sure y>1
               {
                if(apportionment_type==3)//completely random apportionment
@@ -1366,14 +1489,50 @@ FUNCTION get_random_numbers
                  Rec_apport_RN(j,y-1,r)=Rec_apport_RN_temp(j,y-1,r);//generate a positive random number bw 0-1
                }
               }
+            }
+           }
+          }
+
+    for (int j=1;j<=npops;j++)
+     {
+       for (int y=1;y<=nyrs;y++)
+         {
+           rec_devs_RN(j,y)=rec_devs_RN_temp(j,y);
          }
-        }
        }
-      }
-     }
-    }
-   }
-  }
+
+    for (int j=1;j<=npops;j++)
+     {  
+      for (int r=1;r<=nregions(j);r++)   
+       {       
+         for(int s=1; s<=nyrs_release; s++)
+               {
+                 ntags_RN(j,r,s)=ntags_RN_temp(j,r,s);
+                 prob_tag_RN(j,r,s)=prob_tag_RN_temp(j,r,s);
+               }
+             }
+            }
+
+              for(int s=1; s<=nyrs_release; s++)
+               {
+                 prob_tag_year_RN(s)=prob_tag_year_RN_temp(s);
+               }
+
+
+    for (int j=1;j<=npops;j++)
+     {  
+      for (int r=1;r<=nregions(j);r++)   
+       {       
+        for (int y=1;y<=nyrs;y++)
+         {
+          for (int a=1;a<=nages;a++)
+             {
+              T_RN(j,r,y,a)=T_RN_temp(j,r,y,a);
+             }
+            }
+           }
+          }
+
 ///////BUILD MOVEMENT MATRIX////////
 FUNCTION get_movement
 
